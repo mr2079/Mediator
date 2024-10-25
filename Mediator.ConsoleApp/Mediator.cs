@@ -4,7 +4,7 @@ namespace Mediator.ConsoleApp;
 
 public interface IMediator
 {
-    Task<TResponse> Send<TRequest, TResponse>(TRequest request);
+    Task<TResponse> Send<TResponse>(IRequest<TResponse> request);
 }
 
 public class Mediator : IMediator
@@ -38,11 +38,13 @@ public class Mediator : IMediator
         }
     }
 
-    public Task<TResponse> Send<TRequest, TResponse>(TRequest request)
+    public Task<TResponse> Send<TResponse>(IRequest<TResponse> request)
     {
-        if (!_handlers.TryGetValue(typeof(TRequest), out var handler)) 
-            return null;
+        if (!_handlers.TryGetValue(request.GetType(), out var handler))
+            return Task.FromException<TResponse>(new InvalidOperationException("Handler not found"));
 
-        return ((IRequestHandler<TRequest, TResponse>)handler).Handle(request);
+        var method = handler.GetType().GetMethod("Handle");
+
+        return (Task<TResponse>)method!.Invoke(handler, [request])!;
     }
 }

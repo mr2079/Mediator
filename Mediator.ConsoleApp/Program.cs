@@ -6,14 +6,14 @@ var command = new AddProductCommand(
     "Apple iphone 13 pro max",
     1099);
 
-var productId = await mediator.Send<AddProductCommand, Guid>(command);
+var productId = await mediator.Send(command);
 
 Console.WriteLine(productId);
 
 var query = new GetProductQuery(
     Guid.NewGuid());
 
-var productTitle = await mediator.Send<GetProductQuery, string>(query);
+var productTitle = await mediator.Send(query);
 
 Console.WriteLine(productTitle);
 
